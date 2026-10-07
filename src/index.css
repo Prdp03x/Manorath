@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Breakpoints used by the original stylesheets (max-width, inclusive).
+   Declared widest -> narrowest so narrower ones win in the cascade. */
+@custom-variant tablet (@media (max-width: 900px));
+@custom-variant narrow (@media (max-width: 620px));
+@custom-variant phone (@media (max-width: 560px));
+
+@theme {
+  --font-sans: "DM Sans", sans-serif;
+  --font-display: "Cormorant Garamond", serif;
+
+  --color-ink: #231d1b;
+  --color-muted: #766d67;
+  --color-cream: #f4eee5;
+  --color-paper: #fffdf9;
+  --color-line: #ded5ca;
+  --color-gold: #b68a4a;
+  --color-wine: #541827;
+  --color-wine-2: #721f34;
+  --color-green: #315848;
+
+  --ease-nav: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  /* Tailwind's preflight sets line-height: 1.5 on <html>; the old CSS used the browser default. */
+  html {
+    line-height: normal;
+  }
+  /* Tailwind v4 buttons default to cursor: default. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
