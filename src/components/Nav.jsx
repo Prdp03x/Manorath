@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 // full-width bar -> floating glass pill
 const navBase =
@@ -21,12 +21,39 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [menu, setMenu] = useState(false)
 
-  useEffect(() => {
-    const on = () => { setScrolled(window.scrollY > 60); setMenu(false) }
-    on()
-    window.addEventListener('scroll', on, { passive: true })
-    return () => window.removeEventListener('scroll', on)
-  }, [])
+useEffect(() => {
+  const onScroll = () => {
+    setScrolled(window.scrollY > 60)
+  }
+
+  onScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
+
+  return () => window.removeEventListener('scroll', onScroll)
+}, [])
+
+const navigate = useNavigate();
+
+const handleLogoClick = (e) => {
+  e.preventDefault();
+
+  if (window.location.pathname === "/") {
+    // Already on homepage: scroll to top
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  } else {
+    // On another page: navigate home
+    navigate("/");
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
+  setMenu(false); // Close mobile menu if open
+};
 
   return (
     <>
@@ -40,6 +67,7 @@ export default function Nav() {
             (scrolled ? 'text-[26px] phone:text-[22px]' : 'text-[31px] phone:text-[25px]')
           }
           to="/"
+          onClick={handleLogoClick} aria-label="Go to homepage"
         >
           <img src='/assets/logo.png' className='w-10 h-10'/>
           <img src='/assets/textlogo.svg' className='h-8'/>
@@ -70,34 +98,45 @@ export default function Nav() {
             onClick={() => setMenu(!menu)}
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-current fill-none stroke-[1.8] [stroke-linecap:round]">
-              <path className={`${bar} ${menu ? 'translate-y-[5px] rotate-45' : ''}`} d="M4 7h16" />
+              <path className={`${bar} ${menu ? 'translate-y-[4px] rotate-45' : ''}`} d="M4 7h16" />
               <path className={`${bar} ${menu ? 'opacity-0' : ''}`} d="M4 12h16" />
-              <path className={`${bar} ${menu ? '-translate-y-[5px] -rotate-45' : ''}`} d="M4 17h16" />
+              <path className={`${bar} ${menu ? '-translate-y-[4px] -rotate-45' : ''}`} d="M4 17h16" />
             </svg>
           </button>
         </div>
       </nav>
       <div
-        className={
-          'fixed z-19 left-6 right-6 top-24 p-3.5 rounded-[28px] hidden tablet:flex flex-col ' +
-          'bg-[rgba(251,248,243,.82)] backdrop-blur-[24px] backdrop-saturate-150 border border-white/55 ' +
-          'shadow-[0_24px_60px_rgba(30,20,20,.2)] ' +
-          '[transition:opacity_.35s_ease,translate_.5s_var(--ease-nav),scale_.5s_var(--ease-nav)] ' +
-          'phone:left-3 phone:right-3 phone:top-20 ' +
-          (menu ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 -translate-y-3 scale-[.98] pointer-events-none')
-        }
-      >
-        {[['collection', 'Collection'], ['story', 'Our Story'], ['inclusions', 'Inclusions'], ['contact', 'Contact']].map(([id, label]) => (
-          <Link
-            key={id}
-            to={`/#${id}`}
-            onClick={() => setMenu(false)}
-            className="px-[18px] py-4 rounded-[18px] text-[13px] tracking-[.1em] uppercase text-ink active:bg-[rgba(33,25,26,.07)]"
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
+  className={[
+    'fixed z-[2000] left-6 right-6 p-3.5',
+    'rounded-[28px] hidden tablet:flex flex-col',
+    'bg-[rgba(251,248,243,0.45)]',
+    'backdrop-blur-[24px] backdrop-saturate-150',
+    'border border-white/55',
+    'shadow-[0_24px_60px_rgba(30,20,20,.2)]',
+    '[transition:top_.65s_var(--ease-nav),opacity_.35s_ease,translate_.5s_var(--ease-nav),scale_.5s_var(--ease-nav)]',
+    'phone:left-3 phone:right-3',
+    scrolled ? 'top-20 phone:top-20' : 'top-24 phone:top-30',
+    menu
+      ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+      : 'opacity-0 -translate-y-3 scale-[.98] pointer-events-none',
+  ].join(' ')}
+>
+  {[
+    ['collection', 'Collection'],
+    ['story', 'Our Story'],
+    ['inclusions', 'Inclusions'],
+    ['contact', 'Contact'],
+  ].map(([id, label]) => (
+    <Link
+      key={id}
+      to={`/#${id}`}
+      onClick={() => setMenu(false)}
+      className="px-[18px] py-4 rounded-[18px] text-[13px] tracking-[.1em] uppercase text-ink active:bg-[rgba(33,25,26,.07)]"
+    >
+      {label}
+    </Link>
+  ))}
+</div>
     </>
   )
 }

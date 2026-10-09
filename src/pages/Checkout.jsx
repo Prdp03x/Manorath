@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 import { useCart } from '../hooks/useCart.jsx'
@@ -6,40 +6,16 @@ import { CONFIG } from '../config'
 import { money, whatsappUrl } from '../utils'
 import Field from '../components/checkout/Field.jsx'
 import ProgressSteps from '../components/checkout/ProgressSteps.jsx'
+import ContactStep from '../components/checkout/steps/ContactStep.jsx'
+import DeliveryStep from '../components/checkout/steps/DeliveryStep.jsx'
+import GiftDetailsStep from '../components/checkout/steps/GiftDetailsStep.jsx'
+import PaymentStep from '../components/checkout/steps/PaymentStep.jsx'
 import {
   RiDeleteBin6Line,
   RiWhatsappLine,
   RiArrowLeftLine,
   RiArrowRightLine,
 } from '@remixicon/react'
-
-const STATES = [
-  'Gujarat',
-  'Maharashtra',
-  'Rajasthan',
-  'Delhi',
-  'Karnataka',
-  'Tamil Nadu',
-  'West Bengal',
-  'Other',
-]
-
-const OCCASIONS = [
-  'Diwali',
-  'Wedding',
-  'Birthday',
-  'Corporate gifting',
-  'Other',
-]
-
-const PAYMENTS = ['UPI', 'Card', 'Bank Transfer']
-
-const STEPS = [
-  { number: 1, label: 'Contact' },
-  { number: 2, label: 'Delivery' },
-  { number: 3, label: 'Gift' },
-  { number: 4, label: 'Payment' },
-]
 
 const minDate = () => {
   const d = new Date()
@@ -152,10 +128,19 @@ export default function Checkout() {
 
   const [step, setStep] = useState(1)
   const [detailsStarted, setDetailsStarted] = useState(false)
+  const [navScrolled, setNavScrolled] = useState(false)
 
   const root = useRef(null)
   const formRef = useRef(null)
   const stepContentRef = useRef(null)
+
+  // Floating glass checkout navbar: wide at the top, pill-shaped on scroll.
+  useEffect(() => {
+    const onScroll = () => setNavScrolled(window.scrollY > 60)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   // ---------------------------------------------------------------------------
   // GSAP
@@ -408,43 +393,44 @@ export default function Checkout() {
 
   const Header = (
     <>
-      <div className="announcement bg-wine text-white text-center px-[18px] py-[9px] text-[11px] tracking-[.18em] uppercase">
+      <div className="announcement relative z-[51] bg-wine text-white text-center px-[18px] py-[9px] text-[11px] tracking-[.18em] uppercase narrow:text-[9px]">
         PAN INDIA DELIVERY • BESPOKE GIFTING • MANORATH 2026
       </div>
 
-      <header className="header bg-[rgba(255,253,249,.92)] backdrop-blur-[18px] border-b border-[rgba(84,24,39,.10)] sticky top-0 z-50">
-        <div className="max-w-[1240px] mx-auto px-7 py-[22px] flex items-center justify-between gap-5 narrow:px-[18px] narrow:py-4">
-          <Link
-            to="/"
-            className="flex items-center font-display text-[38px] font-bold tracking-[.05em] text-wine narrow:text-[31px]"
-          >
-            <img
-              src="/assets/logo.png"
-              className="w-10 h-10"
-              alt="Manorath"
-            />
+      <header
+        className={
+          'header fixed z-50 flex items-center justify-between border ' +
+          '[transition:top_.65s_cubic-bezier(.22,1,.36,1),left_.65s_cubic-bezier(.22,1,.36,1),right_.65s_cubic-bezier(.22,1,.36,1),height_.65s_cubic-bezier(.22,1,.36,1),padding_.65s_cubic-bezier(.22,1,.36,1),border-radius_.65s_cubic-bezier(.22,1,.36,1),background-color_.45s_ease,color_.45s_ease,box-shadow_.65s_ease,border-color_.45s_ease] ' +
+          (navScrolled
+            ? 'top-4 left-6 right-6 h-16 rounded-full pl-7 pr-7 bg-[rgba(251,248,243,.78)] text-wine border-white/60 shadow-[0_18px_50px_rgba(30,20,20,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-[24px] backdrop-saturate-150 narrow:top-3 narrow:left-3 narrow:right-3 narrow:h-[58px] narrow:pl-[18px] narrow:pr-[18px]'
+            : 'top-[36px] left-0 right-0 h-[76px] px-[5vw] rounded-none bg-[rgba(251,248,243,.78)] text-wine border-transparent shadow-none backdrop-blur-[18px] narrow:top-[34px] narrow:h-[66px] narrow:px-[18px]')
+        }
+      >
+        <Link
+          to="/"
+          aria-label="Manorath home"
+          className={
+            'flex items-center gap-1 font-display font-semibold tracking-[.16em] ' +
+            'transition-[font-size] duration-500 ' +
+            (navScrolled ? 'text-[26px] narrow:text-[22px]' : 'text-[31px] narrow:text-[25px]')
+          }
+        >
+          <img src="/assets/logo.png" className="w-10 h-10 narrow:w-8 narrow:h-8" alt="" />
+          <img src="/assets/textlogo.svg" className="h-8 narrow:h-7" alt="Manorath" />
+        </Link>
 
-            <img
-              src="/assets/textlogo.svg"
-              className="h-8"
-              alt="Manorath"
-            />
-          </Link>
-
-          <div className="text-[12px] text-muted flex items-center gap-2 narrow:text-[10px]">
-            <span className="w-7 h-7 rounded-full bg-[#efe5d8] grid place-items-center">
-              ⌁
-            </span>
-
-            Order via WhatsApp
-          </div>
+        <div className="flex items-center gap-2 text-[12px] text-muted narrow:gap-1.5 narrow:text-[10px]">
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-[#efe5d8] narrow:h-7 narrow:w-7">
+            ⌁
+          </span>
+          <span>Order via WhatsApp</span>
         </div>
       </header>
     </>
   )
 
   const page =
-    'max-w-[1240px] mx-auto px-7 pt-12 pb-20 narrow:px-[15px] narrow:pt-[34px] narrow:pb-[55px]'
+    'max-w-[1240px] mx-auto px-7 pt-[132px] pb-20 narrow:px-[15px] narrow:pt-[116px] narrow:pb-[55px]'
 
   // ---------------------------------------------------------------------------
   // Empty cart
@@ -701,74 +687,7 @@ export default function Checkout() {
                 =========================================================== */}
 
                 {step === 1 && (
-                  <section
-                    className={`${card} mb-[18px] reveal`}
-                    data-step="1"
-                  >
-                    <div className={sectionHead}>
-                      <div>
-                        <div className={badge}>
-                          STEP 01
-                        </div>
-
-                        <h2 className="font-display font-medium leading-[.9] text-wine text-[36px] mt-2">
-                          Contact details
-                        </h2>
-
-                        <p className="text-muted text-[12px] mt-3 leading-[1.6]">
-                          We'll use these details to contact
-                          you about your order.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-[15px] narrow:grid-cols-1">
-                      <div className="step-item">
-                        <Field
-                          id="email"
-                          label="Email address"
-                        >
-                          <input
-                            className={control}
-                            id="email"
-                            type="email"
-                            placeholder="you@example.com"
-                            required
-                            value={f.email}
-                            onChange={set('email')}
-                          />
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="phone"
-                          label="Mobile number"
-                        >
-                          <input
-                            className={control}
-                            id="phone"
-                            type="tel"
-                            placeholder="+91 98XXXXXXXX"
-                            required
-                            value={f.phone}
-                            onChange={set('phone')}
-                          />
-                        </Field>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end mt-7">
-                      <button
-                        className={`${ctaBase} flex items-center justify-center gap-2 w-full`}
-                        type="button"
-                        onClick={goNext}
-                      >
-                        Continue
-                        <RiArrowRightLine size={18} />
-                      </button>
-                    </div>
-                  </section>
+                  <ContactStep form={f} set={set} goNext={goNext} />
                 )}
 
                 {/* ===========================================================
@@ -776,176 +695,7 @@ export default function Checkout() {
                 =========================================================== */}
 
                 {step === 2 && (
-                  <section
-                    className={`${card} mb-[18px] reveal`}
-                    data-step="2"
-                  >
-                    <div className={sectionHead}>
-                      <div>
-                        <div className={badge}>
-                          STEP 02
-                        </div>
-
-                        <h2 className="font-display font-medium leading-[.9] text-wine text-[36px] mt-2">
-                          Delivery address
-                        </h2>
-
-                        <p className="text-muted text-[12px] mt-3 leading-[1.6]">
-                          Where should we deliver your Manorath
-                          order?
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-[15px] narrow:grid-cols-1">
-                      <div className="step-item">
-                        <Field
-                          id="name"
-                          label="Full name"
-                          full
-                        >
-                          <input
-                            className={control}
-                            id="name"
-                            type="text"
-                            placeholder="Recipient / contact person"
-                            required
-                            value={f.name}
-                            onChange={set('name')}
-                          />
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="address"
-                          label="Address"
-                          full
-                        >
-                          <textarea
-                            className={`${control} min-h-[100px] resize-y`}
-                            id="address"
-                            placeholder="House / office / street / landmark"
-                            required
-                            value={f.address}
-                            onChange={set('address')}
-                          />
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="city"
-                          label="City"
-                        >
-                          <input
-                            className={control}
-                            id="city"
-                            type="text"
-                            placeholder="City"
-                            required
-                            value={f.city}
-                            onChange={set('city')}
-                          />
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="state"
-                          label="State"
-                        >
-                          <select
-                            className={control}
-                            id="state"
-                            required
-                            value={f.state}
-                            onChange={set('state')}
-                          >
-                            <option value="">
-                              Select state
-                            </option>
-
-                            {STATES.map((state) => (
-                              <option
-                                key={state}
-                                value={state}
-                              >
-                                {state}
-                              </option>
-                            ))}
-                          </select>
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="pin"
-                          label="PIN code"
-                        >
-                          <input
-                            className={control}
-                            id="pin"
-                            inputMode="numeric"
-                            maxLength={6}
-                            pattern="[0-9]{6}"
-                            title="6-digit PIN code"
-                            placeholder="360001"
-                            required
-                            value={f.pin}
-                            onChange={set('pin')}
-                          />
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="deliveryDate"
-                          label="Preferred delivery date"
-                        >
-                          <input
-                            className={control}
-                            id="deliveryDate"
-                            type="date"
-                            min={minDate()}
-                            value={f.deliveryDate}
-                            onChange={set(
-                              'deliveryDate'
-                            )}
-                          />
-                        </Field>
-                      </div>
-                    </div>
-
-                    <div className={notice}>
-                      Catalogue terms specify a minimum
-                      processing time of 20 days after
-                      confirmation. Door-to-door delivery is
-                      available PAN India; a flat{' '}
-                      {money(CONFIG.shippingCharge)} shipping
-                      charge applies.
-                    </div>
-
-                    <div className="flex justify-between gap-3 mt-7 narrow:flex-col-reverse">
-                      <button
-                        className={`${ctaBase} flex items-center justify-center gap-2`}
-                        type="button"
-                        onClick={goBack}
-                      >
-                        <RiArrowLeftLine size={18} />
-                        Back
-                      </button>
-
-                      <button
-                        className={`${ctaBase} flex items-center justify-center gap-2`}
-                        type="button"
-                        onClick={goNext}
-                      >
-                        Continue
-                        <RiArrowRightLine size={18} />
-                      </button>
-                    </div>
-                  </section>
+                  <DeliveryStep form={f} set={set} goNext={goNext} goBack={goBack} />
                 )}
 
                 {/* ===========================================================
@@ -953,144 +703,7 @@ export default function Checkout() {
                 =========================================================== */}
 
                 {step === 3 && (
-                  <section
-                    className={`${card} mb-[18px] reveal`}
-                    data-step="3"
-                  >
-                    <div className={sectionHead}>
-                      <div>
-                        <div className={badge}>
-                          STEP 03 · OPTIONAL
-                        </div>
-
-                        <h2 className="font-display font-medium leading-[.9] text-wine text-[36px] mt-2">
-                          Gift details
-                        </h2>
-
-                        <p className="text-muted text-[12px] mt-3 leading-[1.6]">
-                          Add a personal touch to your gifting.
-                          You can also skip this step.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-[15px] narrow:grid-cols-1">
-                      <div className="step-item">
-                        <Field
-                          id="recipient"
-                          label="Recipient name"
-                        >
-                          <input
-                            className={control}
-                            id="recipient"
-                            type="text"
-                            placeholder="Optional"
-                            value={f.recipient}
-                            onChange={set(
-                              'recipient'
-                            )}
-                          />
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="occasion"
-                          label="Occasion"
-                        >
-                          <select
-                            className={control}
-                            id="occasion"
-                            value={f.occasion}
-                            onChange={set(
-                              'occasion'
-                            )}
-                          >
-                            {OCCASIONS.map((occasion) => (
-                              <option
-                                key={occasion}
-                                value={occasion}
-                              >
-                                {occasion}
-                              </option>
-                            ))}
-                          </select>
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="message"
-                          label="Gift message"
-                          full
-                        >
-                          <textarea
-                            className={`${control} min-h-[100px] resize-y`}
-                            id="message"
-                            placeholder="Add a personal note for the recipient…"
-                            value={f.message}
-                            onChange={set(
-                              'message'
-                            )}
-                          />
-                        </Field>
-                      </div>
-
-                      <div className="step-item">
-                        <Field
-                          id="custom"
-                          label="Customization / inclusion request"
-                          full
-                        >
-                          <textarea
-                            className={`${control} min-h-[100px] resize-y`}
-                            id="custom"
-                            placeholder="Different jars, sweets, chocolates, candles, branding, etc."
-                            value={f.custom}
-                            onChange={set(
-                              'custom'
-                            )}
-                          />
-                        </Field>
-                      </div>
-                    </div>
-
-                    <div className={notice}>
-                      Gift details are optional. You can skip
-                      this step and discuss customization with
-                      our team on WhatsApp.
-                    </div>
-
-                    <div className="flex justify-between gap-3 mt-7 narrow:flex-col-reverse">
-                      <button
-                        className={`${ctaBase} flex items-center justify-center gap-2`}
-                        type="button"
-                        onClick={goBack}
-                      >
-                        <RiArrowLeftLine size={18} />
-                        Back
-                      </button>
-
-                      <div className="flex gap-3 narrow:flex-col">
-                        <button
-                          className={`${ctaBase} `}
-                          type="button"
-                          onClick={skipGift}
-                        >
-                          Skip
-                        </button>
-
-                        <button
-                          className={`${ctaBase} flex items-center justify-center gap-2`}
-                          type="button"
-                          onClick={goNext}
-                        >
-                          Continue
-                          <RiArrowRightLine size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </section>
+                  <GiftDetailsStep form={f} set={set} goNext={goNext} goBack={goBack} skipGift={skipGift} />
                 )}
 
                 {/* ===========================================================
@@ -1098,150 +711,7 @@ export default function Checkout() {
                 =========================================================== */}
 
                 {step === 4 && (
-                  <section
-                    className={`${card} mb-[18px] reveal`}
-                    data-step="4"
-                  >
-                    <div className={sectionHead}>
-                      <div>
-                        <div className={badge}>
-                          STEP 04
-                        </div>
-
-                        <h2 className="font-display font-medium leading-[.9] text-wine text-[36px] mt-2">
-                          Advance payment preference
-                        </h2>
-
-                        <p className="text-muted text-[12px] mt-3 leading-[1.6]">
-                          Choose how you would prefer to pay
-                          the advance after our team confirms
-                          your quotation.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2.5 tablet:grid-cols-1">
-                      {PAYMENTS.map((payment) => (
-                        <label
-                          key={payment}
-                          className={`${option} ${
-                            f.payment === payment
-                              ? optionOn
-                              : optionOff
-                          } cursor-pointer`}
-                        >
-                          <input
-                            className="mt-[3px] accent-wine flex-none"
-                            type="radio"
-                            name="payment"
-                            value={payment}
-                            checked={
-                              f.payment === payment
-                            }
-                            onChange={set(
-                              'payment'
-                            )}
-                          />
-
-                          <div>
-                            <div
-                              className={
-                                optionTitle
-                              }
-                            >
-                              {payment}
-                            </div>
-
-                            <div
-                              className={
-                                optionMeta
-                              }
-                            >
-                              Preferred mode
-                            </div>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-
-                    <div className={notice}>
-                      <strong>
-                        {CONFIG.advancePercent}% advance:
-                      </strong>{' '}
-                      An order is confirmed after{' '}
-                      {CONFIG.advancePercent}% advance payment.
-                      No payment is collected on this site —
-                      our team shares payment details on
-                      WhatsApp after you place the order.
-                    </div>
-
-                    {/* Final total preview */}
-                    <div className="mt-6 p-5 rounded-[18px] bg-[#fcf7f1] border border-[#e8ddd1]">
-                      <div className="flex justify-between items-center gap-3">
-                        <span className="text-[12px] text-muted">
-                          Order total
-                        </span>
-
-                        <strong className="text-[20px] text-wine">
-                          {money(total)}
-                        </strong>
-                      </div>
-
-                      <div className="flex justify-between items-center gap-3 mt-2">
-                        <span className="text-[12px] text-muted">
-                          {CONFIG.advancePercent}% advance
-                        </span>
-
-                        <strong className="text-[16px]">
-                          {money(advance)}
-                        </strong>
-                      </div>
-
-                      <div className="flex justify-between items-center gap-3 mt-2">
-                        <span className="text-[12px] text-muted">
-                          Balance
-                        </span>
-
-                        <strong className="text-[14px]">
-                          {money(balance)}
-                        </strong>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between gap-3 mt-7 narrow:flex-col-reverse">
-                      <button
-                        className={`${ctaBase} flex items-center justify-center gap-2`}
-                        type="button"
-                        onClick={goBack}
-                      >
-                        <RiArrowLeftLine size={18} />
-                        Back
-                      </button>
-
-                      <button
-                        className={`${cta} flex items-center justify-center gap-2`}
-                        type="button"
-                        onClick={placeOrder}
-                        disabled={!lines.length}
-                      >
-                        <RiWhatsappLine size={20} />
-                        Place order on WhatsApp
-                      </button>
-                    </div>
-
-                    <div className="flex justify-center gap-[18px] flex-wrap mt-[15px] text-[#837970] text-[10px] tracking-[.08em] uppercase">
-                      <span>Customisable</span>
-                      <span>Pan India</span>
-                      <span>20+ days</span>
-                    </div>
-
-                    <div className={notice}>
-                      Final pricing is subject to selected
-                      inclusions/customisation. Branding and
-                      customisation may be extra unless
-                      specifically included.
-                    </div>
-                  </section>
+                  <PaymentStep form={f} set={set} goBack={goBack} placeOrder={placeOrder} lines={lines} total={total} advance={advance} balance={balance} />
                 )}
               </div>
             </form>
