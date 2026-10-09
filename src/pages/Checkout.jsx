@@ -399,11 +399,11 @@ export default function Checkout() {
 
       <header
         className={
-          'header fixed z-50 flex items-center justify-between border ' +
+          'header fixed z-50 isolate flex items-center justify-between border ' +
           '[transition:top_.65s_cubic-bezier(.22,1,.36,1),left_.65s_cubic-bezier(.22,1,.36,1),right_.65s_cubic-bezier(.22,1,.36,1),height_.65s_cubic-bezier(.22,1,.36,1),padding_.65s_cubic-bezier(.22,1,.36,1),border-radius_.65s_cubic-bezier(.22,1,.36,1),background-color_.45s_ease,color_.45s_ease,box-shadow_.65s_ease,border-color_.45s_ease] ' +
           (navScrolled
-            ? 'top-4 left-6 right-6 h-16 rounded-full pl-7 pr-7 bg-[rgba(251,248,243,.78)] text-wine border-white/60 shadow-[0_18px_50px_rgba(30,20,20,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-[24px] backdrop-saturate-150 narrow:top-3 narrow:left-3 narrow:right-3 narrow:h-[58px] narrow:pl-[18px] narrow:pr-[18px]'
-            : 'top-[36px] left-0 right-0 h-[76px] px-[5vw] rounded-none bg-[rgba(251,248,243,.78)] text-wine border-transparent shadow-none backdrop-blur-[18px] narrow:top-[34px] narrow:h-[66px] narrow:px-[18px]')
+            ? 'top-4 left-6 right-6 h-16 rounded-full pl-7 pr-7 bg-[rgba(251,248,243,0.32)] text-wine border-white/60 shadow-[0_18px_50px_rgba(30,20,20,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-[24px] backdrop-saturate-150 narrow:top-3 narrow:left-3 narrow:right-3 narrow:h-[58px] narrow:pl-[18px] narrow:pr-[18px]'
+            : 'top-[36px] left-0 right-0 h-[76px] px-[5vw] rounded-none bg-[rgba(251,248,243,0.18)] text-wine border-transparent shadow-none backdrop-blur-[18px] backdrop-saturate-150 narrow:top-[34px] narrow:h-[66px] narrow:px-[18px]')
         }
       >
         <Link
